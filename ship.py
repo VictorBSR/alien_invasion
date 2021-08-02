@@ -2,9 +2,10 @@ import pygame
 
 class Ship():
 
-    def __init__(self, screen):
+    def __init__(self, ai_settings, screen):
         """Inicializa nave e pos inicial"""
         self.screen = screen
+        self.ai_settings = ai_settings
 
         # Carrega img da nave e rect
         self.image = pygame.image.load('images/ship2.bmp')
@@ -14,6 +15,9 @@ class Ship():
         # Inicializa nova nave
         self.rect.centerx = self.screen_rect.centerx
         self.rect.bottom = self.screen_rect.bottom
+
+        # Armazena valor decimal para o centro da nave
+        self.center = float(self.rect.centerx)
 
         # Flag de movimento da nave
         self.moving_right = False
@@ -25,7 +29,10 @@ class Ship():
 
     def update(self):
         """Atualiza posição da nave com base na flag de movimento"""
-        if self.moving_right:
-            self.rect.centerx += 1
-        elif self.moving_left:
-            self.rect.centerx -= 1
+        if self.moving_right and self.rect.right < self.screen_rect.right:
+            self.center += self.ai_settings.ship_speed_factor
+        elif self.moving_left and self.rect.left > 0:
+            self.center -= self.ai_settings.ship_speed_factor
+
+        # Atualiza rect
+        self.rect.centerx = self.center
