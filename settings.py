@@ -10,6 +10,7 @@ class Settings():
 
         # Configs de nave
         self.ship_speed_factor = 1.5
+        self.ship_limit = 3
 
         # Configs de tiro
         self.bullet_speed_factor = 1.5
