@@ -46,15 +46,26 @@ def update_screen(ai_settings, screen, ship, aliens, bullets):
     # Torna última tela desenhada visível
     pygame.display.flip()
 
-def update_bullets(bullets):
+def update_bullets(ai_settings, screen, ship, aliens, bullets):
     """Atualiza posição das balas"""
     bullets.update()
 
-    # Apaga balas fora da tela
+    # Apaga tiros fora da tela
     for bullet in bullets.copy():
         if bullet.rect.bottom <= 0: # topo da tela
             bullets.remove(bullet)
     print(len(bullets))
+
+    check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets)
+
+def check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets):
+    # Verifica colisão com alien, remove ambos, False para tiro penetrar
+    collisions = pygame.sprite.groupcollide(bullets, aliens, False, True) # True, True
+
+    if len(aliens) == 0:
+        # Destrói tiros e cria nova tropa
+        bullets.empty()
+        create_fleet(ai_settings, screen, ship, aliens)
 
 def fire_bullet(ai_settings, screen, ship, bullets):
     # Cria novo tiro
