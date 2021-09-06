@@ -14,7 +14,7 @@ class Settings():
 
         # Configs de tiro
         self.bullet_speed_factor = 1.5
-        self.bullet_width = 300 # 3
+        self.bullet_width = 3 # 3
         self.bullet_height = 15
         self.bullet_color = 230, 160, 6
         self.bullets_allowed = 3
