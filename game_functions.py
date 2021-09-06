@@ -1,3 +1,4 @@
+from os import stat
 import sys
 from time import sleep
 import pygame
@@ -23,7 +24,7 @@ def check_keyup_event(event, ship):
     elif event.key == pygame.K_LEFT:
         ship.moving_left = False
 
-def check_events(ai_settings, screen, stats, play_button, ship, bullets):
+def check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets):
     """Responde a eventos de teclado e mouse"""
     # Monitora eventos de mouse e teclado
     for event in pygame.event.get():
@@ -35,9 +36,9 @@ def check_events(ai_settings, screen, stats, play_button, ship, bullets):
             check_keyup_event(event, ship)
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            check_play_button(stats, play_button, mouse_x, mouse_y)
+            check_play_button(ai_settings, screen, stats, play_button, ship, aliens, bullets, mouse_x, mouse_y)
 
-def update_screen(ai_settings, screen, stats, ship, aliens, bullets, play_button):
+def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button):
     """Atualiza imagens na tela e flip"""
     screen.fill(ai_settings.bg_color)
     
@@ -47,6 +48,8 @@ def update_screen(ai_settings, screen, stats, ship, aliens, bullets, play_button
 
     ship.blitme()
     aliens.draw(screen)
+    # Info score
+    sb.show_score()
 
     # Desenha o botão se o jogo estiver inativo
     if not stats.game_active:
@@ -55,7 +58,7 @@ def update_screen(ai_settings, screen, stats, ship, aliens, bullets, play_button
     # Torna última tela desenhada visível
     pygame.display.flip()
 
-def update_bullets(ai_settings, screen, ship, aliens, bullets):
+def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets):
     """Atualiza posição das balas"""
     bullets.update()
 
@@ -65,15 +68,20 @@ def update_bullets(ai_settings, screen, ship, aliens, bullets):
             bullets.remove(bullet)
     print(len(bullets))
 
-    check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets)
+    check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, bullets)
 
-def check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets):
+def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, bullets):
     # Verifica colisão com alien, remove ambos, False para tiro penetrar
     collisions = pygame.sprite.groupcollide(bullets, aliens, False, True) # True, True
 
+    if collisions:
+        stats.score += ai_settings.alien_points
+        sb.prep_score()
+
     if len(aliens) == 0:
-        # Destrói tiros e cria nova tropa
+        # Destrói tiros e cria nova tropa e acelera jogo
         bullets.empty()
+        ai_settings.increase_speed()
         create_fleet(ai_settings, screen, ship, aliens)
 
 def fire_bullet(ai_settings, screen, ship, bullets):
@@ -152,6 +160,7 @@ def ship_hit(ai_settings, stats, screen, ship, aliens, bullets):
         sleep(0.5)
     else:
         stats.game_active = False
+        pygame.mouse.set_visible(True)
 
 def check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets):
     screen_rect = screen.get_rect()
@@ -160,7 +169,24 @@ def check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets):
             ship_hit(ai_settings, stats, screen, ship, aliens, bullets)
             break
 
-def check_play_button(stats, play_button, mouse_x, mouse_y):
+def check_play_button(ai_settings, screen, stats, play_button, ship, aliens, bullets, mouse_x, mouse_y):
     # Start jogo novo ao clicar em Play
-    if play_button.rect.collidepoint(mouse_x, mouse_y):
+    button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
+    if button_clicked and not stats.game_active:
+        # Reseta configs do jogo
+        ai_settings.initialize_dymanic_settings()
+
+        # Esconde cursor
+        pygame.mouse.set_visible(False)
+
+        # Reseta stats
+        stats.reset_stats()
         stats.game_active = True
+
+        # Esvazia lista de aliens e tiros
+        aliens.empty()
+        bullets.empty()
+
+        # Cria nova frota e centraliza nave
+        create_fleet(ai_settings, screen, ship, aliens)
+        ship.center_ship()
