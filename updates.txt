@@ -1,0 +1,15 @@
+Pontos de melhoria:
+- incluir tela de game over
+- salvar max score em arquivo separado para load
+- Play (Space) para início rápido
+
+Avançados:
+- Tela de intro/controles (P, Q, Space) + instruções básica
+- Pausa (P)
+- Spawn de aliens aleatorios (aumenta chance a cada fleet)
+- Alien verde = vida
+- Alien vermelho = acelera fleet temporariamente
+- Alien amarelo = tiros ilimitados
+- Alien azul = desacelera fleet
+- Não errar nenhum tiro = vida extra
+- Obstaculos (asteroides) em alguns leveis, que bloqueiamm parcialmente a visão
