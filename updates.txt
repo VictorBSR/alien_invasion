@@ -13,3 +13,5 @@ Avançados:
 - Alien azul = desacelera fleet
 - Não errar nenhum tiro = vida extra
 - Obstaculos (asteroides) em alguns leveis, que bloqueiamm parcialmente a visão
+- Aliens que atiram e covers para nave
+- pygame.mixer
