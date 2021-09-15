@@ -75,8 +75,10 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, 
     collisions = pygame.sprite.groupcollide(bullets, aliens, False, True) # True, True
 
     if collisions:
-        stats.score += ai_settings.alien_points
-        sb.prep_score()
+        for aliens in collisions.values():
+            stats.score += ai_settings.alien_points * len(aliens)
+            sb.prep_score()
+        check_high_score(stats, sb)
 
     if len(aliens) == 0:
         # Destrói tiros e cria nova tropa e acelera jogo
@@ -174,7 +176,7 @@ def check_play_button(ai_settings, screen, stats, play_button, ship, aliens, bul
     button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
     if button_clicked and not stats.game_active:
         # Reseta configs do jogo
-        ai_settings.initialize_dymanic_settings()
+        ai_settings.initialize_dynamic_settings()
 
         # Esconde cursor
         pygame.mouse.set_visible(False)
@@ -190,3 +192,8 @@ def check_play_button(ai_settings, screen, stats, play_button, ship, aliens, bul
         # Cria nova frota e centraliza nave
         create_fleet(ai_settings, screen, ship, aliens)
         ship.center_ship()
+
+def check_high_score(stats, sb):
+    if stats.score > stats.high_score:
+        stats.high_score = stats.score
+        sb.prep_high_score()
